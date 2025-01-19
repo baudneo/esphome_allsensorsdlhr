@@ -1,7 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor
-from esphome.components import spi
+from esphome.components import sensor, spi, select
 from esphome.const import (
     CONF_ID,
     CONF_PRESSURE,
@@ -17,11 +16,20 @@ CODEOWNERS = ["@jaminh"]
 
 CONF_PRESSURE_RANGE = "pressure_range"
 CONF_PRESSURE_TYPE = "pressure_type"
+CONF_MEASUREMENT_TYPE = "measurement_type"
 
 allsensorsdlhr_ns = cg.esphome_ns.namespace("allsensorsdlhr")
 ALLSENSORSDLHRSensor = allsensorsdlhr_ns.class_(
     "ALLSENSORSDLHRSensor", sensor.Sensor, cg.PollingComponent, spi.SPIDevice
 )
+
+MEASUREMENT_TYPES = {
+    "single": 0xAA,
+    "avg2": 0xAC,
+    "avg4": 0xAD,
+    "avg8": 0xAE,
+    "avg16": 0xAF,
+}
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -44,6 +52,7 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_MEASUREMENT_TYPE, default="avg8"): cv.enum(MEASUREMENT_TYPES),
         }
     )
     .extend(cv.polling_component_schema("20s"))
@@ -68,3 +77,9 @@ async def to_code(config):
         conf = config[CONF_TEMPERATURE]
         sens = await sensor.new_sensor(conf)
         cg.add(var.set_temperature_sensor(sens))
+
+    if CONF_MEASUREMENT_TYPE in config:
+        cg.add(var.set_measurement_type(config[CONF_MEASUREMENT_TYPE]))
+
+    select_var = await select.new_select(config[CONF_MEASUREMENT_TYPE], options=[str(k) for k in MEASUREMENT_TYPES])
+    cg.add(var.set_measurement_type(select_var))

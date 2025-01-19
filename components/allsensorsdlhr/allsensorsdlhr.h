@@ -20,6 +20,7 @@ class ALLSENSORSDLHRSensor : public PollingComponent,
   void dump_config() override;
   void set_allsensorsdlhr_pressure_range(float pressure_range);
   void set_allsensorsdlhr_pressure_type(float pressure_type);
+  void set_measurement_type(uint8_t measurement_type);
 
  protected:
   float allsensorsdlhr_pressure_range_ = 0.0; // Range of pressure in inches of water column
@@ -31,6 +32,7 @@ class ALLSENSORSDLHRSensor : public PollingComponent,
   uint8_t retry_count_ = 0;         // byte to hold status information.
   int pressure_count_ = 0;     // hold raw pressure data (24 - bit)
   int temperature_count_ = 0;  // hold raw temperature data (16 - bit)
+  uint8_t measurement_type_ = CMD_AVG8_SAMPLES; // Default to average 8 samples
   sensor::Sensor *pressure_sensor_;
   sensor::Sensor *temperature_sensor_;
   uint8_t readsensor_();

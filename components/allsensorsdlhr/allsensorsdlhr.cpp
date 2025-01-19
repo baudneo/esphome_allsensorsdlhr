@@ -23,9 +23,9 @@ void ALLSENSORSDLHRSensor::setup() {
 }
 
 uint8_t ALLSENSORSDLHRSensor::readsensor_() {
-  // Send command to measure data.
+  // Send command to measure data. enable SPI, send 3 bytes, disable SPI
   this->enable();
-  cmd_buf_[0] = this->transfer_byte(CMD_AVG8_SAMPLES);
+  cmd_buf_[0] = this->transfer_byte(this->measurement_type_);
   cmd_buf_[1] = this->transfer_byte(CMD_READ);
   cmd_buf_[2] = this->transfer_byte(CMD_READ);
   this->disable();
@@ -140,6 +140,10 @@ void ALLSENSORSDLHRSensor::set_allsensorsdlhr_pressure_range(float pressure_rang
 
 void ALLSENSORSDLHRSensor::set_allsensorsdlhr_pressure_type(float pressure_type) {
   this->allsensorsdlhr_pressure_type_ = pressure_type;
+}
+
+void ALLSENSORSDLHRSensor::set_measurement_type(uint8_t measurement_type) {
+  this->measurement_type_ = measurement_type;
 }
 
 }  // namespace allsensorsdlhr

@@ -13,19 +13,41 @@ Next configure the sensor.
 
 ### Example Configuration
 ```yaml
+# select type of sample to take, don't change this
+select:
+  - platform: template
+    name: "Measurement Type"
+    id: measurement_type_select
+    options:
+      - "single"
+      - "avg2"
+      - "avg4"
+      - "avg8"
+      - "avg16"
+    initial_option: "avg8"
+    set_action:
+      then:
+        - lambda: 'id(allsensorsdlhr_sensor).set_measurement_type(MEASUREMENT_TYPES[std::string(x)]);'
+
+sensor:
   - platform: allsensorsdlhr
     pressure:
-      name: "Hvac Monitor Pressure"
+      name: "Total External Static Pressure"
       unit_of_measurement: "inH2O"
       pressure_range: 2.0
       pressure_type: 2.0
     temperature:
-      name: "Hvac Monitor Temp P"
+      name: "Calibration Temperature Reference"
     cs_pin: GPIO15
     update_interval: "10s"
 ```
 
 ### Configuration Variables
+
+#### Select
+Do not modify this, it lets you select what type of sample to take, default is "avg8" (average of 8 samples).
+
+#### Sensor
 * **pressure**: The information for the pressure sensor.
   * **name**: The name for the pressure sensor.
   * **unit_of_measurement**: The unit of measurement for the pressure readings.
