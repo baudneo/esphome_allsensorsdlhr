@@ -4,7 +4,7 @@ spi:
   mosi_pin: GPIO7
   miso_pin: GPIO2
 
-# select type of sample to take
+# select type of sample to take, don't change the select sensor.
 select:
   - platform: template
     name: "Measurement Type"
@@ -22,6 +22,7 @@ select:
 
 sensor:
   - platform: allsensorsdlhr
+    id: allsensorsdlhr_sensor
     pressure:
       name: "DLHR - Static Pressure"
       unit_of_measurement: "inH2O"
