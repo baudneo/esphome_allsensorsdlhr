@@ -23,6 +23,14 @@ void ALLSENSORSDLHRSensor::setup() {
 }
 
 uint8_t ALLSENSORSDLHRSensor::readsensor_() {
+  // check if the measurement type is valid, sending anything other than the defined commands will
+  // cause sensor calibration issues and VOID the warranty!
+  if (measurement_type_ != CMD_SINGLE_SAMPLE && measurement_type_ != CMD_AVG2_SAMPLES &&
+      measurement_type_ != CMD_AVG4_SAMPLES && measurement_type_ != CMD_AVG8_SAMPLES &&
+      measurement_type_ != CMD_AVG16_SAMPLES) {
+    ESP_LOGW(TAG, "Invalid measurement type %d, defaulting to CMD_AVG8_SAMPLES", measurement_type_);
+    measurement_type_ = CMD_AVG8_SAMPLES;
+  }
   // Send command to measure data. enable SPI, send 3 bytes, disable SPI
   this->enable();
   cmd_buf_[0] = this->transfer_byte(this->measurement_type_);
@@ -31,7 +39,7 @@ uint8_t ALLSENSORSDLHRSensor::readsensor_() {
   this->disable();
   ESP_LOGV(TAG, "Command status %d", cmd_buf_[0]);
   if (SUCCESS_STATUS != cmd_buf_[0]) {
-    ESP_LOGD(TAG, "Error while getting measurement %d %d %d", cmd_buf_[0], cmd_buf_[1], cmd_buf_[2]);
+    ESP_LOGE(TAG, "Error while getting measurement %d %d %d", cmd_buf_[0], cmd_buf_[1], cmd_buf_[2]);
 	return cmd_buf_[0];
   }
 
@@ -54,7 +62,7 @@ uint8_t ALLSENSORSDLHRSensor::readmeasurement_() {
   data_buf_[5] = this->transfer_byte(CMD_READ);
   data_buf_[6] = this->transfer_byte(CMD_READ);
   this->disable();
-  
+
   // Check the status codes:
   // status = 0 : normal operation
   // status = 1 : device in command mode
@@ -89,7 +97,7 @@ void ALLSENSORSDLHRSensor::publishmeasurement_() {
 	this->set_timeout("publish_measurements", 10, [this]() { this->publishmeasurement_(); });
   }
   else {
-	ESP_LOGD(TAG, " Failed to read measurements after %d retries with status %d", retry_count_, read_status_);
+	ESP_LOGE(TAG, " Failed to read measurements after %d retries with status %d", retry_count_, read_status_);
   }
 }
 
@@ -143,6 +151,14 @@ void ALLSENSORSDLHRSensor::set_allsensorsdlhr_pressure_type(float pressure_type)
 }
 
 void ALLSENSORSDLHRSensor::set_measurement_type(uint8_t measurement_type) {
+  // check if the measurement type is valid, sending anything other than the defined commands will
+  // cause sensor calibration issues and VOID the warranty!
+    if (measurement_type != CMD_SINGLE_SAMPLE && measurement_type != CMD_AVG2_SAMPLES &&
+        measurement_type != CMD_AVG4_SAMPLES && measurement_type != CMD_AVG8_SAMPLES &&
+        measurement_type != CMD_AVG16_SAMPLES) {
+        ESP_LOGW(TAG, "Invalid measurement type %d, defaulting to CMD_AVG8_SAMPLES", measurement_type);
+        measurement_type = CMD_AVG8_SAMPLES;
+    }
   this->measurement_type_ = measurement_type;
 }
 
