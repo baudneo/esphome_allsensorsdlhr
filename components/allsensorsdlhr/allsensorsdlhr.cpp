@@ -116,9 +116,14 @@ float ALLSENSORSDLHRSensor::countstopressure_(const int counts, const float pres
 // This will be invalid if sensore daoes not have temperature measurement capability
 float ALLSENSORSDLHRSensor::countstotemperatures_(const int counts) { return (((float) counts / 65535.0) * 125.0) - 40.0; }
 
-// Pressure value from the most recent reading in units
+// Pressure value from the most recent reading in units. Checks for negative pressure readings in differential sensors and warns user.
 float ALLSENSORSDLHRSensor::read_pressure_() {
-  return countstopressure_(pressure_count_, allsensorsdlhr_pressure_range_, allsensorsdlhr_pressure_type_);
+//  return countstopressure_(pressure_count_, allsensorsdlhr_pressure_range_, allsensorsdlhr_pressure_type_);
+    float pressure = countstopressure_(pressure_count_, allsensorsdlhr_pressure_range_, allsensorsdlhr_pressure_type_);
+    if (pressure < 0) && (allsensorsdlhr_pressure_type_ == 2.0) {
+        ESP_LOGW(TAG, "Negative pressure reading detected, tubing connections are probably reversed. Switch the tubing around.");
+    }
+    return pressure;
 }
 
 // Temperature value from the most recent reading in degrees C
