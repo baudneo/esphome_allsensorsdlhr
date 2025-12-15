@@ -30,13 +30,25 @@ uint8_t ALLSENSORSDLHRSensor::readsensor_() {
 //  cmd_buf_[2] = this->transfer_byte(CMD_READ);
   this->disable();
   ESP_LOGV(TAG, "Command status %d", cmd_buf_[0]);
-  if (SUCCESS_STATUS != cmd_buf_[0]) {
-    ESP_LOGD(TAG, "Error while getting measurement %d %d %d", cmd_buf_[0], cmd_buf_[1], cmd_buf_[2]);
-	return cmd_buf_[0];
+  // FIX: Mask out the Busy bit (0x20) and check if the base status is SUCCESS (0x40)
+  // This accepts both 0x40 (Idle) and 0x60 (Busy)
+  if ((cmd_buf_[0] & 0xDC) != SUCCESS_STATUS) {
+    // 0xDC mask keeps Power(bit6), Busy(bit5), ALU(bit2), Conn(bit1)
+    // Actually, simpler check: strictly check for errors, ignore busy.
+    // Ideally, we want Bit 6 (Power) to be 1, and Error bits to be 0.
+  }
+
+  // Cleaner implementation:
+  bool is_powered = (cmd_buf_[0] & 0x40);
+  bool is_error = (cmd_buf_[0] & 0x04) || (cmd_buf_[0] & 0x02); // ALU or Conn error
+
+  if (!is_powered || is_error) {
+     ESP_LOGD(TAG, "Error while getting measurement. Status: 0x%02X", cmd_buf_[0]);
+     return cmd_buf_[0];
   }
 
   retry_count_ = 0;
-  return cmd_buf_[0];
+  return SUCCESS_STATUS; // Return success even if it was busy
 }
 
 // returns status
