@@ -26,8 +26,8 @@ uint8_t ALLSENSORSDLHRSensor::readsensor_() {
   // Send command to measure data.
   this->enable();
   cmd_buf_[0] = this->transfer_byte(CMD_AVG8_SAMPLES);
-  cmd_buf_[1] = this->transfer_byte(CMD_READ);
-  cmd_buf_[2] = this->transfer_byte(CMD_READ);
+//  cmd_buf_[1] = this->transfer_byte(CMD_READ);
+//  cmd_buf_[2] = this->transfer_byte(CMD_READ);
   this->disable();
   ESP_LOGV(TAG, "Command status %d", cmd_buf_[0]);
   if (SUCCESS_STATUS != cmd_buf_[0]) {
