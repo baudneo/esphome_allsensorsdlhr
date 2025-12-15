@@ -136,7 +136,7 @@ void ALLSENSORSDLHRSensor::update() {
   }
 }
 
-float ALLSENSORSDLHRSensor::get_setup_priority() const { return setup_priority::LATE; }
+float ALLSENSORSDLHRSensor::get_setup_priority() const { return setup_priority::BUS; }
 
 void ALLSENSORSDLHRSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "ALLSENSORSDLHR:");
